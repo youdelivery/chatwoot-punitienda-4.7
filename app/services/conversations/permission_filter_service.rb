@@ -19,7 +19,7 @@ class Conversations::PermissionFilterService
     scope = conversations.where(inbox: user.inboxes.where(account_id: account.id))
     return scope if user_role == 'administrator'
 
-    scope.where(team_id: user.teams.where(account_id: account.id)).or(scope.where(team_id: nil))
+    scope.where(team_id: user.teams.where(account_id: account.id))
   end
 
   def account_user

@@ -128,6 +128,11 @@ class ConversationFinder
     when 'unattended'
       @conversations = @conversations.unattended
     end
+    @conversations = Conversations::PermissionFilterService.new(
+      @conversations,
+      current_user,
+      current_account
+    ).perform
     @conversations
   end
 
