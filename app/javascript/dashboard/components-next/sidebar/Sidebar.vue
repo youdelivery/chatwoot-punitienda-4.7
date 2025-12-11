@@ -71,6 +71,7 @@ const contactCustomViews = useMapGetter('customViews/getContactCustomViews');
 const conversationCustomViews = useMapGetter(
   'customViews/getConversationCustomViews'
 );
+const currentRole = useMapGetter('getCurrentRole');
 
 onMounted(() => {
   store.dispatch('labels/get');
@@ -120,7 +121,7 @@ const newReportRoutes = () => [
 const reportRoutes = computed(() => newReportRoutes());
 
 const menuItems = computed(() => {
-  return [
+  const items = [
     {
       name: 'Inbox',
       label: t('SIDEBAR.INBOX'),
@@ -514,6 +515,9 @@ const menuItems = computed(() => {
       ],
     },
   ];
+  return currentRole.value === 'agent'
+    ? items.filter(item => item.name !== 'Inbox')
+    : items;
 });
 </script>
 
