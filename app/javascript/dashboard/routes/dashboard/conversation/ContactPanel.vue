@@ -75,6 +75,7 @@ const isLinearFeatureEnabled = isFeatureEnabledonAccount.value(
 
 const store = useStore();
 const currentChat = useMapGetter('getSelectedChat');
+const currentRole = useMapGetter('getCurrentRole');
 const conversationId = computed(() => props.conversationId);
 const conversationMetadataGetter = useMapGetter(
   'conversationMetadata/getConversationMetadata'
@@ -150,7 +151,7 @@ onMounted(() => {
       >
         <template #item="{ element }">
           <div
-            v-if="element.name === 'conversation_actions'"
+            v-if="element.name === 'conversation_actions' && currentRole !== 'agent'"
             class="conversation--actions"
           >
             <AccordionItem
