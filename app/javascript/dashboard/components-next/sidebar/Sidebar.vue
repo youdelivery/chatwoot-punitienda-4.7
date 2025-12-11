@@ -516,7 +516,7 @@ const menuItems = computed(() => {
     },
   ];
   return currentRole.value === 'agent'
-    ? items.filter(item => item.name !== 'Inbox')
+    ? items.filter(item => !['Inbox', 'Contacts'].includes(item.name))
     : items;
 });
 </script>
