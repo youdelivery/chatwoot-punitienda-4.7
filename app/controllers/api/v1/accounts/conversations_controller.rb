@@ -159,7 +159,9 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
   end
 
   def conversation
-    @conversation ||= Current.account.conversations.find_by!(display_id: params[:id])
+    base = Current.account.conversations
+    permitted = Conversations::PermissionFilterService.new(base, Current.user, Current.account).perform
+    @conversation ||= permitted.find_by!(display_id: params[:id])
     authorize @conversation.inbox, :show?
   end
 
