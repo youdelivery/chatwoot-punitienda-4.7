@@ -66,7 +66,8 @@ class Whatsapp::IncomingMessageBaseService
   end
 
   def create_contact_messages(message)
-    message['contacts'].each do |contact|
+    contacts = message[:contacts] || message['contacts'] || []
+    contacts.each do |contact|
       create_message(contact)
       attach_contact(contact)
       @message.save!
@@ -133,15 +134,19 @@ class Whatsapp::IncomingMessageBaseService
   end
 
   def attach_location
-    location = @processed_params[:messages].first['location']
-    location_name = location['name'] ? "#{location['name']}, #{location['address']}" : ''
+    location = @processed_params[:messages].first[:location] || @processed_params[:messages].first['location']
+    return if location.blank?
+
+    name = location[:name] || location['name']
+    address = location[:address] || location['address']
+    location_name = name ? "#{name}, #{address}" : ''
     @message.attachments.new(
       account_id: @message.account_id,
       file_type: file_content_type(message_type),
-      coordinates_lat: location['latitude'],
-      coordinates_long: location['longitude'],
+      coordinates_lat: location[:latitude] || location['latitude'],
+      coordinates_long: location[:longitude] || location['longitude'],
       fallback_title: location_name,
-      external_url: location['url']
+      external_url: location[:url] || location['url']
     )
   end
 
@@ -158,20 +163,20 @@ class Whatsapp::IncomingMessageBaseService
   end
 
   def attach_contact(contact)
-    phones = contact[:phones]
+    phones = contact[:phones] || contact['phones']
     phones = [{ phone: 'Phone number is not available' }] if phones.blank?
 
-    name_info = contact['name'] || {}
+    name_info = contact[:name] || contact['name'] || {}
     contact_meta = {
-      firstName: name_info['first_name'],
-      lastName: name_info['last_name']
+      firstName: name_info[:first_name] || name_info['first_name'],
+      lastName: name_info[:last_name] || name_info['last_name']
     }.compact
 
     phones.each do |phone|
       @message.attachments.new(
         account_id: @message.account_id,
         file_type: file_content_type(message_type),
-        fallback_title: phone[:phone].to_s,
+        fallback_title: (phone[:phone] || phone['phone']).to_s,
         meta: contact_meta
       )
     end

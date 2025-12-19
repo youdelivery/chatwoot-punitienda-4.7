@@ -5,7 +5,15 @@ class Whatsapp::IncomingMessageWhatsappCloudService < Whatsapp::IncomingMessageB
   private
 
   def processed_params
-    @processed_params ||= params[:entry].try(:first).try(:[], 'changes').try(:first).try(:[], 'value')
+    return @processed_params if defined?(@processed_params) && @processed_params.present?
+
+    entry = params[:entry] || params['entry']
+    first_entry = entry.is_a?(Array) ? entry.first : nil
+    changes = first_entry&.[](:changes) || first_entry&.[]('changes')
+    first_change = changes.is_a?(Array) ? changes.first : nil
+    value = first_change&.dig(:value) || first_change&.dig('value')
+
+    @processed_params = value.is_a?(Hash) ? value.deep_symbolize_keys : value
   end
 
   def download_attachment_file(attachment_payload)

@@ -61,15 +61,20 @@ module Whatsapp::IncomingMessageServiceHelpers
   end
 
   def error_webhook_event?(message)
-    message.key?('errors')
+    message.key?(:errors) || message.key?('errors')
   end
 
   def log_error(message)
-    Rails.logger.warn "Whatsapp Error: #{message['errors'][0]['title']} - contact: #{message['from']}"
+    errors = message[:errors] || message['errors'] || []
+    first_error = errors.first || {}
+    title = first_error[:title] || first_error['title']
+    from = message[:from] || message['from']
+    Rails.logger.warn "Whatsapp Error: #{title} - contact: #{from}"
   end
 
   def process_in_reply_to(message)
-    @in_reply_to_external_id = message['context']&.[]('id')
+    context = message[:context] || message['context']
+    @in_reply_to_external_id = context&.[](:id) || context&.[]('id')
   end
 
   def find_message_by_source_id(source_id)
