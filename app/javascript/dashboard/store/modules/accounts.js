@@ -140,7 +140,13 @@ export const actions = {
     }
   },
 
-  limits: async ({ commit }) => {
+  limits: async ({ commit, rootGetters }) => {
+    const isOnChatwootCloud = rootGetters?.['globalConfig/isOnChatwootCloud'];
+    const globalConfig = rootGetters?.['globalConfig/get'];
+    const isEnterprise = globalConfig?.isEnterprise;
+    if (!isOnChatwootCloud || !isEnterprise) {
+      return;
+    }
     try {
       const response = await EnterpriseAccountAPI.getLimits();
       commit(types.default.SET_ACCOUNT_LIMITS, response.data);

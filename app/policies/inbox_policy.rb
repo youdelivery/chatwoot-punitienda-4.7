@@ -11,6 +11,8 @@ class InboxPolicy < ApplicationPolicy
     end
 
     def resolve
+      return scope.none unless user
+      return user.inboxes.where(account_id: account.id) if user.is_a?(AgentBot)
       user.assigned_inboxes
     end
   end
